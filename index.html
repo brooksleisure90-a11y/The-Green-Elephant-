@@ -128,6 +128,23 @@
     </script>
 </body>
 </html
+// Helper: Get current image as base64 no matter how you stored it
+function getCurrentImageBase64() {
+  // Case 1: You draw to canvas
+  const canvas = document.getElementById('canvas'); // change 'canvas' to your canvas ID
+  if (canvas) {
+    return canvas.toDataURL('image/jpeg', 0.8);
+  }
+
+  // Case 2: You have an img tag with the photo
+  const img = document.getElementById('userPhoto'); // change to your img ID
+  if (img && img.src) {
+    return img.src; // works if it's already base64/data URL
+  }
+
+  // Case 3: Nothing found
+  return null;
+}
 // Pet Picasso Logic
 async function makePetLegendary() {
   const btn = document.getElementById('petPicassoBtn');
