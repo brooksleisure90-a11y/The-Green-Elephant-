@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -234,9 +234,9 @@ status.textContent = 'The royal artist is busy. Try again in a moment.';
 async function pollForResult(id) {
   while (true) {
     await new Promise(r => setTimeout(r, 1000));
-    const response = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-      headers: { 'Authorization': 'Token r8_YOUR_REPLICATE_API_KEY_HERE' }
-    });
+ const response = await fetch('/.netlify/functions/pet-picasso', {
+  method: 'POST', 
+  body: JSON.stringify({ image: base64Image })
     const result = await response.json();
     if (result.status === 'succeeded') return result.output[0];
     if (result.status === 'failed') throw new Error('Failed');
