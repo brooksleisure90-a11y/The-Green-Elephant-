@@ -1,5 +1,5 @@
 const CACHE_NAME = 'beart-v2';
-
+const urlsToCache = ['./', './index.html', './manifest.json', './icon-512.png', './icon-192.png'];
 manifest.json', './icon-512.png', './icon-192.png'];
 
 self.addEventListener('install', e => {
