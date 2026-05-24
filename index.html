@@ -152,21 +152,22 @@ async function makePetLegendary() {
   const result = document.getElementById('petResult');
   
   // Use your existing image capture system
-  if (!currentImage) {
-    alert('First, take or upload a photo of your pet!');
-    return;
-  }
-  
-  btn.disabled = true;
-  btn.textContent = 'Summoning the royal artist...';
-  status.style.display = 'block';
-  status.textContent = 'BeArt is painting your legend. 10-20 seconds...';
-  result.innerHTML = '';
-  
-  try {
-    // Convert your canvas/image to base64
-    const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-    
+  // Check if we have a photo in canvas OR preview
+const canvasHasImage = canvas.width > 0 && canvas.height > 0;
+const previewHasImage = preview.src && preview.style.display !== 'none';
+
+if (!canvasHasImage && !previewHasImage) {
+  alert('First, take or upload a photo of your pet!');
+  return;
+}
+
+// Grab the image from wherever it is
+let base64Image;
+if (canvasHasImage) {
+  base64Image = canvas.toDataURL('image/jpeg', 0.8);
+} else {
+  base64Image = preview.src;
+}  
     // Call Replicate API - Stable Diffusion with pet portrait prompt
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
