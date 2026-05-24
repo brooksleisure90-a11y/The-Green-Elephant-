@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff6b35">
+    <link rel="manifest" href="./manifest.json">
+    <title>BeArt Gallery Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0f0a;
+            color: #ff6b35;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+       .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            text-shadow: 0 0 20px #ff6b35;
+        }
+       .btn {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: #000;
+            border: none;
+            padding: 18px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 12px;
+            margin: 10px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.4);
+        }
+       .btn:active { transform: scale(0.98); }
+        input[type="file"] { display: none; }
+        #preview {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 12px;
+            border: 2px solid #ff6b35;
+        }
+        #video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #ff6b35;
+            display: none;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 BEART GALLERY</h1>
+        <p style="margin-bottom: 30px; color: #ccc;">Snap your art. Sell your vision.</p>
+
+        <button class="btn" onclick="openCamera()">📸 SNAP YOUR ART</button>
+
+        <label for="fileInput" class="btn" style="display: inline-block;">
+            🖼️ UPLOAD FROM GALLERY
+        </label>
+        <input type="file" id="fileInput" accept="image/*" onchange="loadImage(event)">
+
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="preview" style="display:none;">
+        <button id="captureBtn" class="btn" style="display:none;" onclick="takePhoto()">📷 CAPTURE</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const preview = document.getElementById('preview');
+        const captureBtn = document.getElementById('captureBtn');
+        let stream = null;
+
+        async function openCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                captureBtn.style.display = 'inline-block';
+                preview.style.display = 'none';
+            } catch (err) {
+                alert('Camera blocked. Use Upload From Gallery instead.');
+                console.log('Camera error:', err);
+            }
+        }
+
+        function takePhoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            preview.src = canvas.toDataURL('image/png');
+            preview.style.display = 'block';
+            video.style.display = 'none';
+            captureBtn.style.display = 'none';
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function loadImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw-v2.js');
+        }
+    </script>
+</body>
+</html>
