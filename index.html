@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeArt Gallery - Royal Pet Portraits</title>
+  <style>
+    body { font-family: serif; background: #1a0f0a; color: #d4af37; text-align: center; padding: 20px; }
+    h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .upload { margin: 20px 0; }
+    input[type="file"] { display: none; }
+    .btn { background: #d4af37; color: #1a0f0a; padding: 15px 30px; border: none; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
+    .btn:active { transform: scale(0.95); }
+    #status { margin: 20px 0; font-size: 1.1rem; min-height: 30px; }
+    #result { margin-top: 30px; }
+    #result img { max-width: 90%; border: 10px solid #d4af37; box-shadow: 0 0 30px rgba(212,175,55,0.5); }
+    .frame { background: #2a1f1a; padding: 20px; display: inline-block; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>👑 BeArt Gallery 👑</h1>
+  <p>Transform thy noble beast into royal art</p>
+  
+  <div class="upload">
+    <label for="petUpload" class="btn">Upload Thy Pet</label>
+    <input type="file" id="petUpload" accept="image/*">
+  </div>
+  
+  <button class="btn" onclick="makePetLegendary()">Make My Pet Legendary</button>
+  
+  <div id="status"></div>
+  <div id="result"></div>
+
+  <audio id="trumpet" preload="auto">
+    <source src="https://www.soundjay.com/misc/sounds/trumpet-fanfare-1.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let base64Image = null;
+    const status = document.getElementById('status');
+    const result = document.getElementById('result');
+    const trumpet = document.getElementById('trumpet');
+
+    document.getElementById('petUpload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        base64Image = event.target.result;
+        status.textContent = 'Pet loaded. Ready for royal treatment.';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    async function makePetLegendary() {
+      if (!base64Image) {
+        status.textContent = 'First, upload thy beast!';
+        return;
+      }
+
+      status.textContent = 'Summoning the royal artist...';
+      result.innerHTML = '';
+      
+      try {
+        const response = await fetch('/.netlify/functions/pet-picasso', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Image })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        if (data.output && data.output[0]) {
+          status.textContent = 'Behold! Thy majestic creation!';
+          result.innerHTML = `<div class="frame"><img src="${data.output[0]}" alt="Royal Pet Portrait"></div>`;
+          
+          // Play majestic fart-trumpet
+          trumpet.play().catch(() => {
+            status.textContent += ' *pfffft*'; // fallback if audio blocked
+          });
+        } else {
+          throw new Error('No image returned from the royal artist');
+        }
+
+      } catch (err) {
+        status.textContent = `The royal artist is busy: ${err.message}`;
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
