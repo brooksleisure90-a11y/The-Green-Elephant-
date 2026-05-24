@@ -21,24 +21,6 @@
     padding: 20px;
     margin-bottom: 20px;
   }
-.camera-btn {
-    width: 100%;
-    padding: 50px 20px;
-    border: 3px dashed #ff6b35;
-    border-radius: 16px;
-    background: rgba(255, 107, 53, 0.1);
-    cursor: pointer;
-    font-size: 18px;
-    color: #ff6b35;
-    font-weight: bold;
-    font-family: inherit;
-    transition: all 0.2s;
-    margin-bottom: 12px;
-  }
-.camera-btn:active {
-    background: rgba(255, 107, 53, 0.3);
-    transform: scale(0.98);
-  }
 .gallery-btn {
     width: 100%;
     padding: 20px;
@@ -71,13 +53,6 @@
 .btn-secondary {
     background: #333;
     color: #fff;
-  }
-  #beArtVideo {
-    width: 100%;
-    border-radius: 12px;
-    background: #000;
-    max-height: 400px;
-    object-fit: cover;
   }
   #beArtPreview {
     width: 100%;
@@ -155,30 +130,12 @@
     <span style="font-size:24px">🎨</span> Be Art Gallery Pro
   </h3>
 
-  <button id="beArtCameraBtn" onclick="openBeArtCamera()" class="camera-btn">
-    <div style="font-size:64px;margin-bottom:12px">📸</div>
-    <div>SNAP YOUR ART</div>
-    <div style="font-size:14px;opacity:0.7;margin-top:8px;font-weight:normal">Takes photo directly</div>
-  </button>
-
   <input type="file" id="beArtFileInput" accept="image/*" style="display:none">
   <button onclick="document.getElementById('beArtFileInput').click()" class="gallery-btn">
     <div style="font-size:32px;margin-bottom:8px">🖼️</div>
-    <div>OR UPLOAD FROM GALLERY</div>
-    <div style="font-size:13px;opacity:0.7;margin-top:6px;font-weight:normal">Choose existing photo</div>
+    <div>UPLOAD FROM GALLERY</div>
+    <div style="font-size:13px;opacity:0.7;margin-top:6px;font-weight:normal">Choose a photo</div>
   </button>
-
-  <div id="beArtCameraView" style="display:none;margin-top:16px">
-    <video id="beArtVideo" autoplay playsinline></video>
-    <div style="display:flex;gap:10px;margin-top:12px">
-      <button onclick="captureBeArtPhoto()" class="btn btn-primary" style="flex:1">
-        📸 CAPTURE
-      </button>
-      <button onclick="closeBeArtCamera()" class="btn btn-secondary" style="flex:1">
-        ✕ CLOSE
-      </button>
-    </div>
-  </div>
 
   <canvas id="beArtCanvas" style="display:none"></canvas>
 
@@ -209,52 +166,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 
-let beArtStream = null;
 let currentEditId = null;
-
-async function openBeArtCamera() {
-  const status = document.getElementById('beArtStatus');
-  const video = document.getElementById('beArtVideo');
-  const view = document.getElementById('beArtCameraView');
-  const btn = document.getElementById('beArtCameraBtn');
-  status.innerHTML = '<span style="color:#fbbf24">⏳ Opening camera...</span>';
-  try {
-    beArtStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user' },
-      audio: false
-    });
-    video.srcObject = beArtStream;
-    view.style.display = 'block';
-    btn.style.display = 'none';
-    status.innerHTML = '';
-  } catch (err) {
-    status.innerHTML = '<span style="color:#ef4444">❌ Camera blocked. Enable in App Settings → Permissions → Camera</span>';
-  }
-}
-
-function captureBeArtPhoto() {
-  const video = document.getElementById('beArtVideo');
-  const canvas = document.getElementById('beArtCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
-  const dataUrl = canvas.toDataURL('image/jpeg', 1.0);
-  saveBeArtImage(dataUrl, 'Camera');
-  closeBeArtCamera();
-  if (navigator.vibrate) navigator.vibrate(50);
-}
-
-function closeBeArtCamera() {
-  const view = document.getElementById('beArtCameraView');
-  const btn = document.getElementById('beArtCameraBtn');
-  if (beArtStream) {
-    beArtStream.getTracks().forEach(track => track.stop());
-    beArtStream = null;
-  }
-  view.style.display = 'none';
-  btn.style.display = 'block';
-}
 
 document.getElementById('beArtFileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
